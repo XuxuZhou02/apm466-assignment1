@@ -1,0 +1,168 @@
+\documentclass[9pt]{article}  % smaller font size
+\usepackage{geometry}
+\geometry{a4paper, margin=0.3in, top=0.2in, bottom=0.2in}  % minimal margins
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{multicol}
+\usepackage{xcolor}
+\usepackage{setspace}
+
+\singlespacing  % single line spacing
+\setlength{\parskip}{0.5pt}  % minimal paragraph spacing
+\captionsetup[figure]{font=scriptsize, skip=2pt}  % small figure captions
+\captionsetup[table]{font=scriptsize, skip=2pt}  % small table captions
+
+\title{APM466 Assignment 1: Canadian Government Bonds Analysis}
+\author{Xuxu Zhou \\ Student ID: 1008816612}
+\date{February 2, 2026}
+
+\begin{document}
+
+\maketitle
+\vspace{-8mm}  % reduce space after title
+
+% ==================== Page 1 ====================
+
+\section*{Fundamental Questions}
+\vspace{-3mm}
+
+\subsection*{1. Government Bond Issuance and Economic Policy}
+\textbf{(a) Why issue bonds?} Governments issue bonds to finance deficits without causing inflation. Printing money leads to hyperinflation and currency devaluation.
+
+\textbf{(b) Yield curve flattening example:} Central bank raises short-term rates while long-term growth expectations weaken. Example: 2-year yields rise from 2\% to 3\% but 10-year yields only to 3.2\%.
+
+\textbf{(c) Quantitative easing:} Central banks purchase government bonds to inject liquidity. During COVID-19, the US Fed implemented \$4.5 trillion QE.
+
+\subsection*{2. Bond Selection}
+\begin{table}[H]
+\centering
+\scriptsize
+\begin{tabular}{@{}llrr@{}}
+\toprule
+\textbf{Bond} & \textbf{Coupon} & \textbf{Maturity} & \textbf{Years} \\
+\midrule
+CAN 4.0 Aug 26 & 4.000\% & 2026-08-03 & 0.58 \\
+CAN 3.0 Feb 27 & 3.000\% & 2027-02-01 & 1.07 \\
+CAN 2.5 Aug 27 & 2.500\% & 2027-08-01 & 1.57 \\
+CAN 2.25 Feb 28 & 2.250\% & 2028-02-01 & 2.07 \\
+CAN 2.0 Jun 28 & 2.000\% & 2028-06-01 & 2.40 \\
+CAN 4.0 Mar 29 & 4.000\% & 2029-03-01 & 3.15 \\
+CAN 2.25 Jun 29 & 2.250\% & 2029-06-01 & 3.40 \\
+CAN 2.25 Dec 29 & 2.250\% & 2029-12-01 & 3.90 \\
+CAN 2.75 Sep 30 & 2.750\% & 2030-09-01 & 4.65 \\
+CAN 2.75 Mar 31 & 2.750\% & 2031-03-01 & 5.15 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Selection:} Maturities closest to 0.5-5 years, large issue volumes (\$>20B), recent issue dates.
+
+\subsection*{3. PCA Concept}
+Eigenvalues = variance explained by each component. Eigenvectors = direction of max variance. For rates: PC1=parallel shift, PC2=slope, PC3=curvature.
+
+\section*{Empirical Analysis}
+\vspace{-3mm}
+
+\subsection*{4(a) Yield Curves}
+YTM solves $P = \sum_{k=1}^{2T} \frac{C/2}{(1+y/2)^k} + \frac{100}{(1+y/2)^{2T}}$
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{yield_curves.png}
+\caption{5-Year Yield Curves (Jan 5-16, 2026)}
+\end{figure}
+
+\subsection*{4(b) Spot Curves}
+\textbf{Bootstrapping:} 1) Sort bonds by maturity. 2) For each bond $i$, solve $\text{Price}_i = \sum \frac{C_i/2}{(1+r_t)^{t/2}} + \frac{100}{(1+r_{T_i})^{T_i}}$. 3) Interpolate.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{spot_curves.png}
+\caption{5-Year Spot Rate Curves}
+\end{figure}
+
+% ==================== Page 2 ====================
+
+\subsection*{4(c) Forward Curves}
+\textbf{Calculation:} $F_{t,T} = \left[ \frac{(1+S_T)^T}{(1+S_t)^t} \right]^{1/(T-t)} - 1$, where $t=1$, $T=2,3,4,5$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{forward_curves.png}
+\caption{1-Year Forward Rate Curves}
+\end{figure}
+
+\subsection*{5. Covariance Matrices}
+Daily log returns: $X_{i,j} = \ln(r_{i,j+1}/r_{i,j})$ for yields (1-5yr) and forwards (1yr-1yr to 1yr-4yr). Matrices show strong positive correlation.
+
+\subsection*{6. Principal Component Analysis}
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}[b]{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{yield_pca.png}
+\caption{Yield Curve PCA}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.48\textwidth}
+\centering
+\includegraphics[width=\textwidth]{forward_rate_pca.png}  % Changed from forward_pca.png
+\caption{Forward Curve PCA}
+\end{subfigure}
+\caption{PCA Analysis Results}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\scriptsize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Comp.} & \textbf{Eigenvalue} & \textbf{Variance} \\
+\midrule
+PC1 & $2.59 \times 10^{-4}$ & 72.91\% \\
+PC2 & $4.41 \times 10^{-5}$ & 12.40\% \\
+PC3 & $2.71 \times 10^{-5}$ & 7.61\% \\
+PC4 & $1.99 \times 10^{-5}$ & 5.60\% \\
+PC5 & $5.28 \times 10^{-6}$ & 1.49\% \\
+\bottomrule
+\end{tabular}
+\quad
+\begin{tabular}{@{}lrr@{}}
+\toprule
+\textbf{Comp.} & \textbf{Eigenvalue} & \textbf{Variance} \\
+\midrule
+PC1 & $8.10 \times 10^{-4}$ & 79.06\% \\
+PC2 & $1.10 \times 10^{-4}$ & 10.73\% \\
+PC3 & $7.97 \times 10^{-5}$ & 7.78\% \\
+PC4 & $2.48 \times 10^{-5}$ & 2.42\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ==================== Page 3 ====================
+
+\subsection*{PCA Interpretation}
+First principal component explains 72.91\% (yield) and 79.06\% (forward) of variance, representing parallel shifts of the entire curve. This indicates level changes are the dominant risk factor, driven by monetary policy and macroeconomic expectations. Second component explains slope changes, third explains curvature.
+
+\section*{Conclusion}
+Successfully constructed yield, spot, and forward curves using bootstrapping. PCA analysis shows parallel shifts account for 72.91\% of daily yield movements and 79.06\% of forward rate movements, consistent with fixed income literature where level factor dominates term structure dynamics.
+
+\vspace{-2mm}
+\section*{References \& GitHub}
+\begin{enumerate}[label={[\arabic*]}, nosep, leftmargin=*, itemsep=0pt, parsep=0pt]
+\footnotesize
+\item Business Insider Bond Data. \url{https://markets.businessinsider.com/bonds}
+\item Hull, J. C. (2021). \textit{Options, Futures, and Other Derivatives}.
+\item Litterman, R., \& Scheinkman, J. (1991). Common factors affecting bond returns.
+\end{enumerate}
+All code and data: \url{https://github.com/YOUR-USERNAME/APM466_Assignment_1}
+
+\end{document}
